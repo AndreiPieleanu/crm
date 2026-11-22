@@ -1,0 +1,61 @@
+# All secrets come from environment variables (or a local .env file that is never committed).
+# There are deliberately no default values for passwords or keys: the app refuses to start without them.
+spring:
+  application:
+    name: crm-backend
+  config:
+    import: optional:file:.env[.properties]
+
+  # The app connects as a restricted role (crm_app) that is subject to Row-Level Security.
+  datasource:
+    url: ${CRM_DB_URL:jdbc:postgresql://localhost:5432/crm}
+    username: ${CRM_DB_APP_USER:crm_app}
+    password: ${CRM_DB_APP_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+
+  # Migrations run as the schema owner (crm_owner), never as the app role.
+  flyway:
+    url: ${CRM_DB_URL:jdbc:postgresql://localhost:5432/crm}
+    user: ${CRM_DB_OWNER_USER:crm_owner}
+    password: ${CRM_DB_OWNER_PASSWORD}
+    placeholders:
+      appRole: ${CRM_DB_APP_USER:crm_app}
+
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+    include-exception: false
+  # Requests bigger than this are rejected before they reach the code.
+  tomcat:
+    max-http-form-post-size: 1MB
+    max-swallow-size: 1MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+crm:
+  jwt:
+    # Base64-encoded, at least 32 bytes. Generate one with the command in README.md.
+    secret: ${CRM_JWT_SECRET}
+    issuer: crm-backend
+    access-token-ttl: 15m
+    refresh-token-ttl: 30d
+  cors:
+    allowed-origins: ${CRM_CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  login-rate-limit:
+    max-failures-per-account: 5
+    max-failures-per-ip: 30
+    window: 15m

@@ -2,12 +2,14 @@ package com.innernetwork.crm;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @SpringBootApplication
-public class CrmApplication {
+@ConfigurationPropertiesScan
+public class CrmBackendApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CrmApplication.class, args);
+		SpringApplication.run(CrmBackendApplication.class, args);
 	}
 
 }
